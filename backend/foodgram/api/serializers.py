@@ -1,28 +1,32 @@
 from rest_framework import serializers
-from recipes.models import Tag, Ingredient, User
+from recipes.models import Tag, Ingredient, User, Recipe
 from recipes.validators import username_validator
 from .mixins import ValidateUsernameMixin
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = '__all__'
+        fields = ('tag_name', 'color', 'slug')
         model = Tag
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'ingr_name', 'measurement_unit')
         model = Ingredient
 
 
+class RecipeSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+    title = serializers.CharField
 
-
-
-
-
-
-
+    class Meta:
+        model = Recipe
+        fields = ('id', 'title', 'author', 'pub_date', 'description')
 
 
 class UserSerializer(ValidateUsernameMixin, serializers.ModelSerializer):
@@ -46,6 +50,5 @@ class SignUpSerializer(ValidateUsernameMixin, serializers.Serializer):
 
 
 class TokenRequestSerializer(serializers.Serializer):
-
     username = serializers.CharField()
     confirmation_code = serializers.CharField()

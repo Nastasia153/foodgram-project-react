@@ -120,7 +120,8 @@ class Recipe(models.Model):
     image = models.ImageField(
         'картинка',
         upload_to='recipes/',
-        blank=True
+        blank=True,
+        null=True
     )
     cooking_time = models.IntegerField(
         'время приготовления',
