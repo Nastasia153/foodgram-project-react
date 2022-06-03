@@ -7,7 +7,9 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from recipes.models import User, Tag, Ingredient, Recipe
-from .permissions import IsAdminAsDefinedByUserModel
+from .permissions import (
+    IsAdminAsDefinedByUserModel, IsAdminOrAuthorOrReadOnly
+)
 from .serializers import (
     UserSerializer, SignUpSerializer, TokenRequestSerializer,
     CurrentUserSerializer, TagSerializer, IngredientSerializer,
@@ -18,7 +20,6 @@ from rest_framework.permissions import (
     IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 )
 from rest_framework.decorators import action, api_view, permission_classes
-from .mixins import AuthorOnlyMixin
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -34,15 +35,15 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
 
 
-class RecipeViewSet(AuthorOnlyMixin, viewsets.ModelViewSet):
+class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly)
+    permission_classes = (
+        IsAuthenticatedOrReadOnly, IsAdminOrAuthorOrReadOnly
+    )
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -53,19 +53,9 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    tag_name = models.CharField(
-        'название',
-        max_length=16,
-    )
-    color = models.CharField(
-        'цвет',
-        max_length=16
-    )
-    slug = models.SlugField(
-        'код',
-        unique=True,
-        max_length=16
-    )
+    tag_name = models.CharField('название', max_length=16,)
+    color = models.CharField('цвет', max_length=16)
+    slug = models.SlugField('код', max_length=16)   # unique=True
 
     class Meta:
         default_related_name = 'tags'
@@ -80,14 +70,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    ingr_name = models.CharField(
-        'ингредиент',
-        max_length=150
-    )
-    measurement_unit = models.CharField(
-        'ед.измерения',
-        max_length=16
-    )
+    ingr_name = models.CharField('ингредиент', max_length=150)
+    measurement_unit = models.CharField('ед.измерения', max_length=16)
 
     class Meta:
         default_related_name='ingredients'
@@ -99,10 +83,7 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    title = models.CharField(
-        'название',
-        max_length=150
-    )
+    title = models.CharField('название', max_length=150)
     pub_date = models.DateTimeField(
         'дата добавления',
         auto_now_add=True,
@@ -127,9 +108,7 @@ class Recipe(models.Model):
         'время приготовления',
         help_text='время в минутах'
     )
-    description = models.TextField(
-        'описание рецепта'
-    )
+    description = models.TextField('описание рецепта')
     tag = models.ManyToManyField(
         Tag,
         through='Recipe_tags'
