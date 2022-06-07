@@ -32,18 +32,19 @@ class ChoiceAdmin(admin.ModelAdmin):
 
 
 class IngredientInLine(admin.TabularInline):
-    model = Recipe.ingredient.through
+    model = Recipe.ingredients.through
     verbose_name = 'связь ингредиент-рецепт'
     verbose_name_plural = 'связи ингредиент-рецепт'
 
 
 class TagInLine(admin.TabularInline):
-    model = Recipe.tag.through
+    model = Recipe.tags.through
     verbose_name = 'связь ярлык-рецепт'
     verbose_name_plural = 'связи ярлык-рецепт'
 
 
 class IngredientAdminForm(forms.ModelForm):
+
     class Meta:
         model = Ingredient
         widgets = {

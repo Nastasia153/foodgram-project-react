@@ -32,6 +32,7 @@ class FoodgramUser(AbstractUser):
         max_length=150,
         null=True, blank=True
     )
+    is_subscribed = models.BooleanField(default=False)
     bio = models.TextField('о себе', null=True, blank=True)
     role = models.CharField(
         'роль',
@@ -55,7 +56,7 @@ User = get_user_model()
 class Tag(models.Model):
     tag_name = models.CharField('название', max_length=16,)
     color = models.CharField('цвет', max_length=16)
-    slug = models.SlugField('код', max_length=16)   # unique=True
+    slug = models.SlugField('код', max_length=16)
 
     class Meta:
         default_related_name = 'tags'
@@ -94,9 +95,9 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         verbose_name='автор'
     )
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient,
-        through='Recipe_ingredients'
+        through='RecipeIngredients'
     )
     image = models.ImageField(
         'картинка',
@@ -109,9 +110,9 @@ class Recipe(models.Model):
         help_text='время в минутах'
     )
     description = models.TextField('описание рецепта')
-    tag = models.ManyToManyField(
+    tags = models.ManyToManyField(
         Tag,
-        through='Recipe_tags'
+        through='RecipeTags'
     )
 
     class Meta:
@@ -120,16 +121,16 @@ class Recipe(models.Model):
         verbose_name_plural = 'рецепты'
 
     def get_ingredient(self):
-        return "\n".join([i.ingr_name for i in self.ingredient.all()])
+        return "\n".join([i.ingr_name for i in self.ingredients.all()])
 
     def get_tag(self):
-        return "\n".join([t.tag_name for t in self.tag.all()])
+        return "\n".join([t.tag_name for t in self.tags.all()])
 
     def __str__(self):
         return self.title
 
 
-class Recipe_tags(models.Model):
+class RecipeTags(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE
@@ -143,7 +144,7 @@ class Recipe_tags(models.Model):
         return f'{self.recipe} {self.tag}'
 
 
-class Recipe_ingredients(models.Model):
+class RecipeIngredients(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE
@@ -152,7 +153,7 @@ class Recipe_ingredients(models.Model):
         Ingredient,
         on_delete=models.CASCADE
     )
-    quantity = models.PositiveSmallIntegerField(
+    amount = models.PositiveSmallIntegerField(
         'количество',
         validators=[
             MinValueValidator(1, message='Не меньше 1')
@@ -169,7 +170,7 @@ class Recipe_ingredients(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.recipe} {self.ingredient}, {self.quantity}'
+        return f'{self.recipe} {self.ingredient}, {self.amount}'
 
 
 class Follow(models.Model):
@@ -230,7 +231,7 @@ class Favorite(RecipeBase):
         verbose_name_plural = 'любимые рецепты'
 
 
-class Shopping_cart(RecipeBase):
+class ShoppingCart(RecipeBase):
     class Meta(RecipeBase.Meta):
         default_related_name = 'shopping_cart'
         verbose_name = 'список покупок'

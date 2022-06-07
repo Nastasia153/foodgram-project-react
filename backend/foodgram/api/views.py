@@ -33,6 +33,9 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    lookup_field = 'slug'
+    filter_backends = (filters.SearchFilter,)
+    search_fields= ('slug',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
