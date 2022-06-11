@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
+# from django_base64field.fields import Base64Field
 
 from .validators import username_validator
 
@@ -75,12 +76,12 @@ class Ingredient(models.Model):
     measurement_unit = models.CharField('ед.измерения', max_length=16)
 
     class Meta:
-        default_related_name='ingredients'
+        default_related_name = 'ingredients'
         verbose_name = 'ингредиент'
         verbose_name_plural = 'ингредиенты'
 
     def __str__(self):
-        return self.ingr_name
+        return f'{self.ingr_name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -100,10 +101,10 @@ class Recipe(models.Model):
         through='RecipeIngredients'
     )
     image = models.ImageField(
-        'картинка',
         upload_to='recipes/',
         blank=True,
-        null=True
+        null=True,
+        verbose_name='картинка'
     )
     cooking_time = models.IntegerField(
         'время приготовления',
@@ -114,9 +115,11 @@ class Recipe(models.Model):
         Tag,
         through='RecipeTags'
     )
+    is_favorited = models.BooleanField(default=False)
+    is_in_shopping_cart = models.BooleanField(default=False)
 
     class Meta:
-        default_related_name = 'recipe'
+        default_related_name = 'recipes'
         verbose_name = 'рецепт'
         verbose_name_plural = 'рецепты'
 
@@ -133,11 +136,13 @@ class Recipe(models.Model):
 class RecipeTags(models.Model):
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='recipe_tag'
     )
     tag = models.ForeignKey(
         Tag,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='tag_recipe'
     )
 
     def __str__(self):
@@ -153,7 +158,7 @@ class RecipeIngredients(models.Model):
         Ingredient,
         on_delete=models.CASCADE
     )
-    amount = models.PositiveSmallIntegerField(
+    amount = models.IntegerField(
         'количество',
         validators=[
             MinValueValidator(1, message='Не меньше 1')
@@ -168,9 +173,10 @@ class RecipeIngredients(models.Model):
                 name='unique_ingredient'
             )
         ]
+        default_related_name = 'ingredient_recipe'
 
     def __str__(self):
-        return f'{self.recipe} {self.ingredient}, {self.amount}'
+        return f'{self.recipe} {self.ingredient} {self.amount}'
 
 
 class Follow(models.Model):
@@ -236,6 +242,3 @@ class ShoppingCart(RecipeBase):
         default_related_name = 'shopping_cart'
         verbose_name = 'список покупок'
         verbose_name_plural = 'список покупок'
-
-
-# class Shopping_list()

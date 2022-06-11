@@ -9,7 +9,7 @@ from django.db.models import Model
 
 from recipes.models import Ingredient, Tag
 
-CSV_DIR = os.path.join(settings.BASE_DIR, 'static/data/')
+CSV_DIR = os.path.join(settings.BASE_DIR, 'data/')
 
 
 class Command(BaseCommand):

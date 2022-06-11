@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, viewsets
+from rest_framework import filters, viewsets
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -35,11 +35,11 @@ class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
-    search_fields= ('slug',)
+    search_fields = ('slug',)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.all().order_by('pub_date')
     serializer_class = RecipeSerializer
     permission_classes = (
         IsAuthenticatedOrReadOnly, IsAdminOrAuthorOrReadOnly
@@ -47,6 +47,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class FavoriteViewSet(viewsets.ModelViewSet):
+
+    pass
+
+
+class SubscribeViewSet(viewsets.ModelViewSet):
+
+    pass
 
 
 class UserViewSet(viewsets.ModelViewSet):

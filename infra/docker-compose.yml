@@ -15,3 +15,27 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
+
+  # backend:
+  #   build:
+  #     context: ../backend
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ../backend/:/app/result_build/
+
+  # db:
+  #   image: postgres:13.0-alpine
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data/
+  #   env_file:
+  #     - ../backend/.env
+
+  # web:
+  #   image:
+  #   volumes:
+  #     - static_value:/app/static/
+  #     - media_value:/app/media/
+  #   depends_on:
+  #     - db
+  #   env_file:
+  #     - ../backend/.env
