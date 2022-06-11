@@ -2,19 +2,19 @@ from rest_framework import serializers
 from recipes.models import Tag, Ingredient, User, Recipe, RecipeIngredients, RecipeTags
 from recipes.validators import username_validator
 from .mixins import ValidateUsernameMixin
-
+import base64
 
 class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'tag_name', 'color', 'slug')
+        fields = ('id', 'name', 'color', 'slug')
         model = Tag
 
 
 class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ('id', 'ingr_name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit')
         model = Ingredient
 
 
@@ -26,16 +26,37 @@ class TagRecipeSerializer(serializers.ModelSerializer):
 
 
 class IngredientRecipeSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True, source='ingredient')
-    ingr_name = serializers.SlugRelatedField(read_only=True, slug_field='ingr_name', source='ingredient')
-    measurement_unit = serializers.SlugRelatedField(read_only=True, slug_field='measurement_unit')
+    id = serializers.PrimaryKeyRelatedField(
+        read_only=True, source='ingredient'
+    )
+    ingr_name = serializers.SlugRelatedField(
+        read_only=True, slug_field='name', source='ingredient'
+    )
+    measurement_unit = serializers.SlugRelatedField(
+        read_only=True, slug_field='measurement_unit'
+    )
 
     class Meta:
-        fields = ('id', 'ingr_name', 'measurement_unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit', 'amount')
         model = RecipeIngredients
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeListSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(read_only=True, many=True)
+    ingredients = IngredientRecipeSerializer(
+        read_only=True, many=True, source='ingredient_recipe'
+    )
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id', 'tags', 'author', 'name', 'image', 'ingredients',
+            'text', 'cooking_time'
+        )
+        read_only_fields = ('__all__',)
+
+
+class RecipeWriteSerializer(serializers.ModelSerializer):
 
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -46,35 +67,35 @@ class RecipeSerializer(serializers.ModelSerializer):
         read_only=True, many=True, source='ingredient_recipe'
     )
     tags = TagSerializer(read_only=True, many=True)
+    # image = Base64FileField(required=False, max_length=90000)
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'tags', 'author', 'title', 'image', 'ingredients',
-            'description', 'cooking_time', 'is_favorited',
-            'is_in_shopping_cart'
+            'id', 'tags', 'author', 'name', 'image', 'ingredients',
+            'text', 'cooking_time'
         )
-        read_only_fields = ('author',)
+        # read_only_fields = ('author',)
 
-    def create(self, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
+    # def create(self, validated_data):
+    #     ingredients = validated_data.pop('ingredients')
+    #     tags = validated_data.pop('tags')
+    #     recipe = Recipe.objects.create(**validated_data)
 
-        for ingredient in ingredients:
-            current_ingredient, status=Ingredient.objects.get(**ingredient)
-            RecipeIngredients.objects.create(
-                ingresient=current_ingredient,
-                amount=ingredient['amount'],
-                recipe=recipe
-            )
+    #     for ingredient in ingredients:
+    #         current_ingredient, status=Ingredient.objects.get(**ingredient)
+    #         RecipeIngredients.objects.create(
+    #             ingresient=current_ingredient,
+    #             amount=ingredient['amount'],
+    #             recipe=recipe
+    #         )
 
-        for tag in tags:
-            current_tag, status=Tag.objects.get(**tag)
-            RecipeTags.objects.create(
-                tag=current_tag, recipe=recipe
-            )
-        return recipe
+    #     for tag in tags:
+    #         current_tag, status=Tag.objects.get(**tag)
+    #         RecipeTags.objects.create(
+    #             tag=current_tag, recipe=recipe
+    #         )
+    #     return recipe
 
 
 class UserSerializer(ValidateUsernameMixin, serializers.ModelSerializer):

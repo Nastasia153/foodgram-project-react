@@ -1,3 +1,4 @@
+from email.policy import default
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
@@ -55,7 +56,7 @@ User = get_user_model()
 
 
 class Tag(models.Model):
-    tag_name = models.CharField('название', max_length=16,)
+    name = models.CharField('название ярлыка', max_length=16,)
     color = models.CharField('цвет', max_length=16)
     slug = models.SlugField('код', max_length=16)
 
@@ -65,14 +66,14 @@ class Tag(models.Model):
         verbose_name_plural = 'ярлыки'
 
     def colored_tag(self):
-        return '<span style="color: #%s;">%s</span>' % (self.color, self.tag_name)
+        return '<span style="color: #%s;">%s</span>' % (self.color, self.name)
 
     def __str__(self):
-        return self.tag_name
+        return self.name
 
 
 class Ingredient(models.Model):
-    ingr_name = models.CharField('ингредиент', max_length=150)
+    name = models.CharField('название ингредиента', max_length=150)
     measurement_unit = models.CharField('ед.измерения', max_length=16)
 
     class Meta:
@@ -81,11 +82,11 @@ class Ingredient(models.Model):
         verbose_name_plural = 'ингредиенты'
 
     def __str__(self):
-        return f'{self.ingr_name}, {self.measurement_unit}'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
-    title = models.CharField('название', max_length=150)
+    name = models.CharField('название рецепта', max_length=150)
     pub_date = models.DateTimeField(
         'дата добавления',
         auto_now_add=True,
@@ -110,7 +111,7 @@ class Recipe(models.Model):
         'время приготовления',
         help_text='время в минутах'
     )
-    description = models.TextField('описание рецепта')
+    text = models.TextField('описание рецепта')
     tags = models.ManyToManyField(
         Tag,
         through='RecipeTags'
@@ -130,20 +131,21 @@ class Recipe(models.Model):
         return "\n".join([t.tag_name for t in self.tags.all()])
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class RecipeTags(models.Model):
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE,
-        related_name='recipe_tag'
+        on_delete=models.CASCADE
     )
     tag = models.ForeignKey(
         Tag,
-        on_delete=models.CASCADE,
-        related_name='tag_recipe'
+        on_delete=models.CASCADE
     )
+
+    class Meta:
+        default_related_name = 'recipe_tag'
 
     def __str__(self):
         return f'{self.recipe} {self.tag}'

@@ -13,21 +13,23 @@ from .permissions import (
 from .serializers import (
     UserSerializer, SignUpSerializer, TokenRequestSerializer,
     CurrentUserSerializer, TagSerializer, IngredientSerializer,
-    RecipeSerializer
+    RecipeWriteSerializer, RecipeListSerializer
 )
 from .services import confirmation_email, generate_confirmation_code
 from rest_framework.permissions import (
     IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 )
 from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.pagination import PageNumberPagination
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
-    queryset = Ingredient.objects.all().order_by('ingr_name')
+    queryset = Ingredient.objects.all().order_by('name')
     serializer_class = IngredientSerializer
-    lookup_field = 'ingr_name'
+    lookup_field = 'name'
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('ingr_name',)
+    search_fields = ('name',)
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -36,17 +38,25 @@ class TagViewSet(viewsets.ModelViewSet):
     lookup_field = 'slug'
     filter_backends = (filters.SearchFilter,)
     search_fields = ('slug',)
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all().order_by('pub_date')
-    serializer_class = RecipeSerializer
-    permission_classes = (
-        IsAuthenticatedOrReadOnly, IsAdminOrAuthorOrReadOnly
-    )
+    serializer_class = RecipeWriteSerializer
+    # permission_classes = (
+    #     IsAuthenticatedOrReadOnly, IsAdminOrAuthorOrReadOnly
+    # )
+    recipe_list = Recipe.objects.all().order_by('pub_date')
+    pagination_class = PageNumberPagination
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update']:
+            return RecipeWriteSerializer
+        return RecipeListSerializer
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

@@ -48,31 +48,31 @@ class IngredientAdminForm(forms.ModelForm):
     class Meta:
         model = Ingredient
         widgets = {
-            'ingr_name': forms.TextInput()
+            'name': forms.TextInput()
         }
         fields = '__all__'
 
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('tag_name', 'color', 'slug')
+    list_display = ('name', 'color', 'slug')
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     form = IngredientAdminForm
-    list_display = ('id', 'ingr_name', 'measurement_unit')
-    search_fields = ('ingr_name',)
+    list_display = ('id', 'name', 'measurement_unit')
+    search_fields = ('name',)
     empty_value_display = '-пусто-'
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'title', 'description', 'author', 'cooking_time', 'pub_date',
+        'id', 'name', 'text', 'author', 'cooking_time', 'pub_date',
         'get_ingredient', 'get_tag'
     )
-    search_fields = ('title__name',)
+    search_fields = ('name__name',)
     inlines = [IngredientInLine, TagInLine]
 
 
