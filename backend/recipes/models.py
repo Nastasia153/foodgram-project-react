@@ -1,58 +1,8 @@
-from email.policy import default
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
-# from django_base64field.fields import Base64Field
 
-from .validators import username_validator
-
-
-class FoodgramUser(AbstractUser):
-    """Модель пользователя Foodgram"""
-    USER = 'user'
-    ADMIN = 'admin'
-    ROLES = (
-        (USER, 'пользователь'),
-        (ADMIN, 'админ'),
-    )
-    username = models.CharField(
-        'имя пользователя',
-        max_length=150,
-        unique=True,
-        validators=(username_validator(),)
-    )
-    email = models.EmailField('электронная почта', max_length=254, unique=True)
-    first_name = models.CharField(
-        'имя',
-        max_length=150,
-        null=True, blank=True
-    )
-    last_name = models.CharField(
-        'фамилия',
-        max_length=150,
-        null=True, blank=True
-    )
-    is_subscribed = models.BooleanField(default=False)
-    bio = models.TextField('о себе', null=True, blank=True)
-    role = models.CharField(
-        'роль',
-        max_length=max(len(key) for key, _ in ROLES),
-        choices=ROLES,
-        default=USER
-    )
-    code = models.CharField(max_length=20, null=True, blank=True)
-
-    @property
-    def is_admin(self):
-        return (
-            self.is_staff
-            or self.role == FoodgramUser.ADMIN
-        )
-
-
-User = get_user_model()
+from users.models import FoodgramUser as User
 
 
 class Tag(models.Model):
@@ -64,9 +14,6 @@ class Tag(models.Model):
         default_related_name = 'tags'
         verbose_name = 'ярлык'
         verbose_name_plural = 'ярлыки'
-
-    def colored_tag(self):
-        return '<span style="color: #%s;">%s</span>' % (self.color, self.name)
 
     def __str__(self):
         return self.name
@@ -109,15 +56,13 @@ class Recipe(models.Model):
     )
     cooking_time = models.IntegerField(
         'время приготовления',
-        help_text='время в минутах'
+        help_text='минут'
     )
     text = models.TextField('описание рецепта')
     tags = models.ManyToManyField(
         Tag,
         through='RecipeTags'
     )
-    is_favorited = models.BooleanField(default=False)
-    is_in_shopping_cart = models.BooleanField(default=False)
 
     class Meta:
         default_related_name = 'recipes'
@@ -181,35 +126,6 @@ class RecipeIngredients(models.Model):
         return f'{self.recipe} {self.ingredient} {self.amount}'
 
 
-class Follow(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='follower',
-        verbose_name='подписчик'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='following',
-        verbose_name='автор рецепта'
-    )
-
-    class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'author'],
-                name='unique_follower'
-            ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('author')),
-                name='check_following'
-            )
-        ]
-        verbose_name = 'подписки'
-        verbose_name_plural = 'подписки'
-
-
 class RecipeBase(models.Model):
     user = models.ForeignKey(
         User,
@@ -224,17 +140,17 @@ class RecipeBase(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe'
+            )
+        ]
 
 
 class Favorite(RecipeBase):
     class Meta(RecipeBase.Meta):
         default_related_name = 'favorite'
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_favorite'
-            )
-        ]
         verbose_name = 'любимый рецепт'
         verbose_name_plural = 'любимые рецепты'
 

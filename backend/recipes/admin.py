@@ -3,24 +3,25 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from django import forms
 
-from .models import FoodgramUser, Recipe, Ingredient, Tag
+from .models import Recipe, Ingredient, Tag
+from users.models import FoodgramUser
 
 
 @admin.register(FoodgramUser)
-class FoodrgamUserAdmin(UserAdmin):
+class UserAdmin(UserAdmin):
     list_display = (
         'username', 'email', 'first_name', 'last_name',
-        'is_staff', 'role'
+        'is_staff'
     )
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (
             _('Personal info'),
-            {'fields': ('first_name', 'last_name', 'email', 'bio')}
+            {'fields': ('first_name', 'last_name', 'email')}
         ),
         (_('Permissions'), {
             'fields': (
-                'is_active', 'is_staff', 'role', 'is_superuser'
+                'is_active', 'is_staff', 'is_superuser'
             ),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -74,5 +75,3 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     search_fields = ('name__name',)
     inlines = [IngredientInLine, TagInLine]
-
-

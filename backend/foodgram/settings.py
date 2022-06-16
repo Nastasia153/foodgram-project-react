@@ -13,12 +13,12 @@ SECRET_KEY = 'b#r4krp-9tifn-s#w0^snzq3&*qk%ni7&yg!ti=r45rxaw)h^*'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '51.250.102.0',
+    'cookwithme.ddns.net',
     '127.0.0.1',
     'localhost'
 ]
 
-AUTH_USER_MODEL = 'recipes.FoodgramUser'
+AUTH_USER_MODEL = 'users.FoodgramUser'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -28,10 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'djoser',
     'django_filters',
     'recipes',
     'api',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -104,21 +106,33 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # User authentication
 
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'SEND_ACTIVATION_EMAIL': False,
+    'PERMISSIONS': {
+        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
+        'user': ['rest_framework.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
+    },
+    'HIDE_USERS': False
+}
+
+
 REST_FRAMEWORK = {
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAdminUser',
-#     ],
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',)
-}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#     'AUTH_HEADER_TYPES': ('Bearer',)
+# }
 
 # Internationalization
 

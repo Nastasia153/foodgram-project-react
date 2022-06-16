@@ -1,12 +1,6 @@
 from rest_framework import permissions
 
 
-class IsAdminAsDefinedByUserModel(permissions.BasePermission):
-    """Allows access to users with admin rights"""
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
-
-
 class IsAdminUserOrReadOnly(permissions.BasePermission):
     """Allows access only to administrators or read only."""
     def has_permission(self, request, view):

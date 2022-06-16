@@ -11,7 +11,7 @@ first delete the db.sqlite3 file to destroy the database.
 Then, run `python manage.py migrate` for a new empty
 database with tables"""
 
-CSV_DIR = os.path.join(settings.BASE_DIR, 'static/data/')
+CSV_DIR = os.path.join(settings.BASE_DIR, 'data/')
 
 
 class Command(BaseCommand):
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                     mode='r', encoding='utf-8', newline='')
             ):
                 ingredient = Ingredient(
-                    ingr_name=row['ingr_name'],
+                    ingr_name=row['name'],
                     measurement_unit=row['measurement_unit'])
                 ingredient.save()
         except Exception as error:
