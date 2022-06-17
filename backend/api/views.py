@@ -23,7 +23,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all().order_by('pub_date')
+    queryset = Recipe.objects.all().order_by('-pub_date')
     serializer_class = RecipeWriteSerializer
     permission_classes = (
         IsAuthenticatedOrReadOnly, IsAdminOrAuthorOrReadOnly
@@ -40,10 +40,5 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):
-
-    pass
-
-
-class SubscribeViewSet(viewsets.ModelViewSet):
 
     pass

@@ -1,10 +1,10 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-from django import forms
-
-from .models import Recipe, Ingredient, Tag
 from users.models import FoodgramUser
+
+from .models import Ingredient, Recipe, Tag
 
 
 @admin.register(FoodgramUser)
@@ -70,8 +70,7 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'text', 'author', 'cooking_time', 'pub_date',
-        'get_ingredient', 'get_tag'
+        'id', 'name', 'author', 'get_tag'
     )
-    search_fields = ('name__name',)
+    search_fields = ('name',)
     inlines = [IngredientInLine, TagInLine]

@@ -3,30 +3,22 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import UniqueConstraint
 
-from .managers import CustomUserManager
 from .validators import username_validator
 
 
 class FoodgramUser(AbstractUser):
 
     username = models.CharField(
-        'имя пользователя',
-        max_length=150,
-        unique=True,
+        'имя пользователя', max_length=150, unique=True,
         validators=(username_validator(),)
     )
     email = models.EmailField('электронная почта', max_length=254, unique=True)
     first_name = models.CharField(
-        'имя',
-        max_length=150,
-        null=True, blank=True
+        'имя', max_length=150, null=True, blank=True
     )
     last_name = models.CharField(
-        'фамилия',
-        max_length=150,
-        null=True, blank=True
+        'фамилия', max_length=150, null=True, blank=True
     )
-    objects = CustomUserManager
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'password']
 
@@ -37,6 +29,8 @@ class FoodgramUser(AbstractUser):
                 name='unique_username_email'
             )
         ]
+        verbose_name = 'пользователь'
+        verbose_name_plural = 'пользователи'
 
     def __str__(self):
         return self.username
@@ -47,14 +41,12 @@ User = get_user_model()
 
 class Follow(models.Model):
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
+        User, on_delete=models.CASCADE,
         related_name='follower',
         verbose_name='подписчик'
     )
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
+        User, on_delete=models.CASCADE,
         related_name='following',
         verbose_name='автор рецепта'
     )

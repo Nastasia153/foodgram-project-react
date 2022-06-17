@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
 
-from users.models import FoodgramUser as User
+User = get_user_model()
 
 
 class Tag(models.Model):
@@ -35,13 +36,10 @@ class Ingredient(models.Model):
 class Recipe(models.Model):
     name = models.CharField('название рецепта', max_length=150)
     pub_date = models.DateTimeField(
-        'дата добавления',
-        auto_now_add=True,
-        null=True,
+        'дата добавления', auto_now_add=True, null=True
     )
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
+        User, on_delete=models.CASCADE,
         verbose_name='автор'
     )
     ingredients = models.ManyToManyField(
@@ -50,8 +48,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         upload_to='recipes/',
-        blank=True,
-        null=True,
+        blank=True, null=True,
         verbose_name='картинка'
     )
     cooking_time = models.IntegerField(
@@ -70,10 +67,10 @@ class Recipe(models.Model):
         verbose_name_plural = 'рецепты'
 
     def get_ingredient(self):
-        return "\n".join([i.ingr_name for i in self.ingredients.all()])
+        return "\n".join([i.name for i in self.ingredients.all()])
 
     def get_tag(self):
-        return "\n".join([t.tag_name for t in self.tags.all()])
+        return "\n".join([t.name for t in self.tags.all()])
 
     def __str__(self):
         return self.name
@@ -128,13 +125,11 @@ class RecipeIngredients(models.Model):
 
 class RecipeBase(models.Model):
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
+        User, on_delete=models.CASCADE,
         verbose_name='пользователь'
     )
     recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
+        Recipe, on_delete=models.CASCADE,
         verbose_name='рецепт'
     )
 
