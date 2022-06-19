@@ -7,18 +7,21 @@ from .validators import username_validator
 
 
 class FoodgramUser(AbstractUser):
+    """Модель пользователя."""
+    USER = 'user'
+    ADMIN = 'admin'
+    ROLES = ({USER, 'пользователь'}, {ADMIN, 'админ'})
 
     username = models.CharField(
         'имя пользователя', max_length=150, unique=True,
         validators=(username_validator(),)
     )
     email = models.EmailField('электронная почта', max_length=254, unique=True)
-    first_name = models.CharField(
-        'имя', max_length=150, null=True, blank=True
-    )
-    last_name = models.CharField(
-        'фамилия', max_length=150, null=True, blank=True
-    )
+    first_name = models.CharField('имя', max_length=150, null=True)
+    last_name = models.CharField('фамилия', max_length=150, null=True)
+    role = models.CharField('роль',
+                            max_length=max(len(key) for key, _ in ROLES),
+                            choices=ROLES, default=USER)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'password']
 
@@ -34,6 +37,13 @@ class FoodgramUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_admin(self):
+        return (
+                self.is_staff
+                or self.role == FoodgramUser.ADMIN
+        )
 
 
 User = get_user_model()

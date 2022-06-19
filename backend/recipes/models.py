@@ -65,6 +65,7 @@ class Recipe(models.Model):
         default_related_name = 'recipes'
         verbose_name = 'рецепт'
         verbose_name_plural = 'рецепты'
+        ordering = ['-pub_date']
 
     def get_ingredient(self):
         return "\n".join([i.name for i in self.ingredients.all()])
@@ -111,12 +112,6 @@ class RecipeIngredients(models.Model):
     )
 
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                fields=['ingredient'],
-                name='unique_ingredient'
-            )
-        ]
         default_related_name = 'ingredient_recipe'
 
     def __str__(self):

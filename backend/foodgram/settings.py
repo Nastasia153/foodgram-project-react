@@ -1,5 +1,6 @@
-from datetime import timedelta
 import os
+# from datetime import timedelta
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -158,8 +159,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-RECIPES = {
-    'CODE_LENGTH': 20,
-    'EMAIL_FROM': 'info@example.com',
-    'RESERVED_USERNAMES': ('me',)
-}
+# RECIPES = {
+#     'CODE_LENGTH': 20,
+#     'EMAIL_FROM': 'info@example.com',
+#     'RESERVED_USERNAMES': ('me',)
+# }

@@ -11,7 +11,7 @@ from .models import Ingredient, Recipe, Tag
 class UserAdmin(UserAdmin):
     list_display = (
         'username', 'email', 'first_name', 'last_name',
-        'is_staff'
+        'is_staff', 'role'
     )
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
@@ -21,7 +21,7 @@ class UserAdmin(UserAdmin):
         ),
         (_('Permissions'), {
             'fields': (
-                'is_active', 'is_staff', 'is_superuser'
+                'is_active', 'is_staff', 'is_superuser', 'role'
             ),
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),

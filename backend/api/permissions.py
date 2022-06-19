@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 
 class IsAdminUserOrReadOnly(permissions.BasePermission):
-    """Allows access only to administrators or read only."""
+    """Доступ только для администратора остальным только чтение."""
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
@@ -11,10 +11,7 @@ class IsAdminUserOrReadOnly(permissions.BasePermission):
 
 
 class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
-    """
-    Object level permission that allows access for writing to
-    staff or object author
-    """
+    """Разрешение внесение изменений автору и админу, остальные чтение."""
     def has_object_permission(self, request, view, obj):
         return (
             request.user.is_authenticated and (
@@ -22,3 +19,11 @@ class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
                 or request.user == obj.author
             )
         ) or request.method in permissions.SAFE_METHODS
+
+
+class IsOwnerAdmin(permissions.BasePermission):
+    """Разрешено вносить изменения владельцу и админу"""
+    def has_object_permission(self, request, view, obj):
+        return (
+            obj.user == request.user and request.user.is_admin
+        )
