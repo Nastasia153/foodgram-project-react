@@ -44,7 +44,7 @@ class UserViewSet(DjoserUserViewSet):
                 user=request.user, author=author).exists()
             if is_exist or request.user == author:
                 return Response({
-                    'error': 'Подписка есть или пытайтесь подписаться на себя'
+                    'detail': 'Подписка есть или пытайтесь подписаться на себя'
                 }, status=status.HTTP_400_BAD_REQUEST)
             new_sub = Follow.objects.create(user=request.user, author=author)
             serializer = SubscribeSerializer(
@@ -59,18 +59,18 @@ class UserViewSet(DjoserUserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         raise MethodNotAllowed(request.method)
 
-    # error: AttributeError at /api/users/subscriptions/
-    # Got AttributeError when attempting to get a value for field `email` on serializer `UserSerializer`.
-    # The serializer field might be named incorrectly and not match any attribute or key on the `Follow` instance.
-    # Original exception text was: 'Follow' object has no attribute 'email'.
-    #
-    # @action(methods=['GET'], detail=False,
-    #         permission_classes=(IsAuthenticated,))
-    # def subscriptions(self, request):
-    #     """Эндпоинт всех подписок пользователя."""
-    #     page = self.paginate_queryset(self.request.user.follower.all())
-    #     serializer = UserSerializer(page, many=True,
-    #                                 context={'request': request,
-    #                                          'action': True})
-    #     return self.get_paginated_response(
-    #         serializer.to_representation(serializer.instance))
+#     @action(methods=['GET'], detail=False,
+#             permission_classes=(IsOwnerAdmin,))
+#     def subscriptions(self, request):
+#         """Эндпоинт всех подписок пользователя."""
+#         user = self.request.user
+#         serializer = SubscribeSerializer(
+#             Follow.objects.filter(user_id=user.id), many=True)
+#         print(serializer.data)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#         # user = self.request.user
+#         #queryset = Follow
+# AttributeError at /api/users/subscriptions/
+# 'NoneType' object has no attribute 'user'
+#   File "C:\dev\foodgram-project-react\backend\users\serializers.py", line 36, in get_is_subscribed
+#     request_user = self.context.get('request').user.id

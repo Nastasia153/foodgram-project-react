@@ -1,11 +1,10 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
-from users.serializers import UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredients,
                             ShoppingCart, Tag)
 
 from api.fields import Image64Field
+import users.serializers
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -33,16 +32,11 @@ class IngredientRecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для модели связи рецепта и ингредиента с количеством"""
     name = serializers.ReadOnlyField()
     measurement_unit = serializers.ReadOnlyField()
-    amount = serializers.SerializerMethodField()
+    amount = serializers.ReadOnlyField()
 
     class Meta:
         model = RecipeIngredients
         fields = ('id', 'name', 'measurement_unit', 'amount')
-
-    def get_amount(self, obj):
-        return get_object_or_404(
-            RecipeIngredients, ingredient_id=obj.id,
-            recipe_id=self.context.get('id')).amount
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -51,7 +45,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeSerializer(
         read_only=True, many=True, source='ingredient_recipe'
     )
-    author = UserSerializer(read_only=True,
+    author = users.serializers.UserSerializer(read_only=True,
                             default=serializers.CurrentUserDefault())
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -67,23 +61,15 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         """Проверка рецепта в разделе Избранное."""
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return Favorite.objects.filter(user=user, recipe=obj).exists()
-        # if self.context['request'].user.favorite.filter(id=obj.id).exists():
-        #     return True
+        if Favorite.objects.filter(recipe=obj.id).exists():
+            return True
         return False
 
     def get_is_in_shopping_cart(self, obj):
         """Проверка рецепта в Списке покупок."""
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+        if ShoppingCart.objects.filter(recipe=obj.id).exists():
+            return True
         return False
-
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     return data
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -155,14 +141,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Изменение рецепта."""
-        if validated_data.get('ingredients'):
-            instance.ingredients.clear()
-            self.write_ingredients(
-                validated_data.pop('ingredients'), instance
-            )
-        if validated_data.get('tags'):
-            instance.tags.clear()
-            instance.tags.set(validated_data.pop('tags'))
+        instance.image = validated_data.get('image', instance.image)
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get('cooking_time',
+                                                   instance.cooking_time)
+        instance.tags.set(validated_data.get('tags', instance.tags))
+        instance.ingredients.clear()
+        self.write_ingredients(instance, validated_data.pop('ingredients'))
         return super().update(instance, validated_data)
 
 

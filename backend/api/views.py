@@ -41,7 +41,7 @@ class TagViewSet(mixins.ListModelMixin,
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для рецепта."""
     queryset = Recipe.objects.all()
-    serializer_class = RecipeReadSerializer
+    serializer_class = RecipeWriteSerializer
     permission_classes = (
         IsAuthenticatedOrReadOnly, IsAdminOrAuthorOrReadOnly
     )
@@ -64,7 +64,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if Favorite.objects.filter(user=request.user,
                                        recipe=recipe).exists():
-                return Response({'error': 'Рецепт уже добавлен в избранное.'},
+                return Response({'detail': 'Рецепт уже добавлен в избранное.'},
                                 status=status.HTTP_400_BAD_REQUEST)
             new_fav = Favorite.objects.create(user=request.user, recipe=recipe)
             serializer = FavoriteSerializer(new_fav,
@@ -85,7 +85,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             if ShoppingCart.objects.filter(user=request.user,
                                            recipe=recipe).exists():
-                return Response({'error': 'Рецепт уже в корзине.'},
+                return Response({'detail': 'Рецепт уже в корзине.'},
                                 status=status.HTTP_400_BAD_REQUEST)
             add_recipe = ShoppingCart.objects.create(user=request.user,
                                                      recipe=recipe)

@@ -16,7 +16,7 @@ class UserSerializer(ValidateUsernameMixin, DjoserUserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name')
 
 
-class SubscribeSerializer(serializers.Serializer):
+class SubscribeSerializer(serializers.ModelSerializer):
     email = serializers.ReadOnlyField(source='author.email')
     id = serializers.ReadOnlyField(source='author.id')
     username = serializers.ReadOnlyField(source='author.username')
@@ -32,6 +32,7 @@ class SubscribeSerializer(serializers.Serializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
+        # print('Type of obj:', type(obj))
         request_user = self.context.get('request').user.id
         queryset = Follow.objects.filter(author=obj.author,
                                          user=request_user).exists()
