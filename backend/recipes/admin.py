@@ -2,9 +2,9 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
-from users.models import FoodgramUser
+from users.models import FoodgramUser, Follow
 
-from .models import Ingredient, Recipe, Tag
+from .models import Ingredient, Recipe, Tag, Favorite, ShoppingCart
 
 
 @admin.register(FoodgramUser)
@@ -26,6 +26,7 @@ class UserAdmin(UserAdmin):
         }),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
+    search_fields = ('username', 'email')
 
 
 class ChoiceAdmin(admin.ModelAdmin):
@@ -74,3 +75,18 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     search_fields = ('name',)
     inlines = [IngredientInLine, TagInLine]
+
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user_id', 'author_id')
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user_id', 'recipe_id')
+
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user_id', 'recipe_id')

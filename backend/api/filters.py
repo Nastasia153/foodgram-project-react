@@ -1,31 +1,35 @@
-# import django_filters
-# from recipes.models import Recipe, Favorite, ShoppingCart
-#
+from django_filters import (FilterSet, NumberFilter, ModelMultipleChoiceFilter,
+                            rest_framework as filters)
 
-# class RacipeFilter(django_filters.FilterSet):
-#     is_in_shopping_cart = django_filters.BooleanFilter(
-#         method='filter_is_in_shopping_cart'
-#     )
-#     tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
-#     is_favorited = django_filters.BooleanFilter(
-#         method='filter_is_favorited'
-#     )
-#
-#     class Meta:
-#         model = Recipe
-#         exclude = ('image')
-#
-#     def filter_is_favorited(self, queryset, value):
-#         """Фильтр по избранному."""
-#         queryset = Favorite.objects.all()
-#         if self.request.user.is_authenticated:
-#             if int(value) == 1:
-#                 return queryset.filter(**{'': self.request.user.})
-#         return queryset
-#
-#     def filter_is_in_shopping_cart(self, queryset, value):
-#         queryset = ShoppingCart.objects.all()
-#         if self.request.user.is_authenticated:
-#             if int(value) == 1:
-#                 return queryset.filter(**{'': self.request.user})
-#         return queryset
+from recipes.models import Recipe, Tag
+
+
+class IngredientFilter(filters.FilterSet):
+    """Фильтр ингредиента по началу слова."""
+    name = filters.CharFilter(lookup_expr='istartswith')
+
+
+class RecipeFilter(FilterSet):
+    """Фильтр для выдачи рецептов"""
+    is_favorited = NumberFilter(method='filter_is_favorited')
+    is_in_shopping_cart = NumberFilter(method='filter_is_in_cart')
+    tags = ModelMultipleChoiceFilter(field_name='tags__slug',
+                                     to_field_name='slug',
+                                     queryset=Tag.objects.all())
+
+    class Meta:
+        model = Recipe
+        fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart',)
+
+    def filter_is_favorited(self, queryset, name, value):
+        """Фильтр по избранному."""
+        if self.request.user.is_authenticated:
+            if int(value) == 1:
+                return queryset.filter(favorite__user=self.request.user)
+        return queryset
+
+    def filter_is_in_cart(self, queryset, name, value):
+        """Фильтр по добавленному в корзину."""
+        if self.request.user.is_authenticated:
+            return queryset.filter(shopping_cart__user=self.request.user)
+        return queryset

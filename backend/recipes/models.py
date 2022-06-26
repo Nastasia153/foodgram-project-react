@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -53,7 +54,8 @@ class Recipe(models.Model):
     )
     cooking_time = models.IntegerField(
         'время приготовления',
-        help_text='минут'
+        validators=[MinValueValidator(1, message='Не меньше 1')],
+        default=1, help_text='минут'
     )
     text = models.TextField('описание рецепта')
     tags = models.ManyToManyField(
@@ -89,6 +91,12 @@ class RecipeTags(models.Model):
 
     class Meta:
         default_related_name = 'recipe_tag'
+        constraints = [
+            UniqueConstraint(
+                fields=['tag', 'recipe'],
+                name='unique_tag_recipe'
+            )
+        ]
 
     def __str__(self):
         return f'{self.recipe} {self.tag}'

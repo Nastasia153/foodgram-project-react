@@ -10,7 +10,8 @@ class FoodgramUser(AbstractUser):
     """Модель пользователя."""
     USER = 'user'
     ADMIN = 'admin'
-    ROLES = ({USER, 'пользователь'}, {ADMIN, 'админ'})
+    ROLES = ((USER, 'пользователь'),
+             (ADMIN, 'админ'))
 
     username = models.CharField(
         'имя пользователя', max_length=150, unique=True,
@@ -23,7 +24,7 @@ class FoodgramUser(AbstractUser):
                             max_length=max(len(key) for key, _ in ROLES),
                             choices=ROLES, default=USER)
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'password']
+    REQUIRED_FIELDS = ['username', 'password', 'first_name', 'last_name']
 
     class Meta:
         constraints = [
@@ -34,6 +35,7 @@ class FoodgramUser(AbstractUser):
         ]
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
+        ordering = ('date_joined',)
 
     def __str__(self):
         return self.username
@@ -74,3 +76,4 @@ class Follow(models.Model):
         ]
         verbose_name = 'подписки'
         verbose_name_plural = 'подписки'
+        ordering = ('id',)

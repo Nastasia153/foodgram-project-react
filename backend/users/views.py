@@ -1,17 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from api.permissions import IsAdminOrAuthorOrReadOnly, IsOwnerAdmin
 
+from api.permissions import IsOwnerAdmin
+from api.pagination import CustomPagination
 from .models import Follow
-from .serializers import SubscribeSerializer, UserSerializer
+from .serializers import SubscribeSerializer
 
 User = get_user_model()
 
@@ -19,58 +18,45 @@ User = get_user_model()
 class UserViewSet(DjoserUserViewSet):
     """Вьюсет для работы с пользователем."""
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    filter_backends = (DjangoFilterBackend,)
-    pagination_class = PageNumberPagination
-    permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    pagination_class = CustomPagination
 
-    @action(methods=['GET'], detail=False,
-            permission_classes=(IsOwnerAdmin,))
-    def me(self, request, *args, **kwargs):
-        """Эндпоинт профиля пользователя."""
-        if request.method == "GET":
-            serializer = UserSerializer(
-                self.request.user, context={'request': request}
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        raise MethodNotAllowed(request.method)
-
-    @action(methods=['POST', 'DELETE'], detail=True,
+    @action(methods=['post', 'delete'], detail=True,
             permission_classes=(IsAuthenticated,))
     def subscribe(self, request, id=None):
+        """Эндпоинт подписки/отписки."""
         author = get_object_or_404(User, id=id)
+        print(f'user - {request.user}')
+        print(f'author - {author}')
         if request.method == 'POST':
             is_exist = Follow.objects.filter(
-                user=request.user, author=author).exists()
+                user_id=request.user.id, author_id=author.id).exists()
             if is_exist or request.user == author:
                 return Response({
                     'detail': 'Подписка есть или пытайтесь подписаться на себя'
                 }, status=status.HTTP_400_BAD_REQUEST)
             new_sub = Follow.objects.create(user=request.user, author=author)
-            serializer = SubscribeSerializer(
-                new_sub, context={'request': request}
-            )
+            serializer = SubscribeSerializer(new_sub,
+                                             context={'request': request})
+            print(f'data: {serializer.data}')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             instance = get_object_or_404(
                 Follow, user=request.user, author=author
             )
+            print(f'instance: {instance}')
             self.perform_destroy(instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
         raise MethodNotAllowed(request.method)
 
-#     @action(methods=['GET'], detail=False,
-#             permission_classes=(IsOwnerAdmin,))
-#     def subscriptions(self, request):
-#         """Эндпоинт всех подписок пользователя."""
-#         user = self.request.user
-#         serializer = SubscribeSerializer(
-#             Follow.objects.filter(user_id=user.id), many=True)
-#         print(serializer.data)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#         # user = self.request.user
-#         #queryset = Follow
-# AttributeError at /api/users/subscriptions/
-# 'NoneType' object has no attribute 'user'
-#   File "C:\dev\foodgram-project-react\backend\users\serializers.py", line 36, in get_is_subscribed
-#     request_user = self.context.get('request').user.id
+    @action(methods=['get'], detail=False,
+            serializer_class=SubscribeSerializer,
+            permission_classes=(IsOwnerAdmin,))
+    def subscriptions(self, request):
+        """Эндпоинт всех подписок пользователя."""
+        queryset = Follow.objects.filter(user_id=request.user.id)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return self.get_paginated_response(serializer.data)

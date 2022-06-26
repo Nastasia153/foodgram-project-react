@@ -1,14 +1,10 @@
 import os
-# from datetime import timedelta
 
-from dotenv import load_dotenv
-
-load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'b#r4krp-9tifn-s#w0^snzq3&*qk%ni7&yg!ti=r45rxaw)h^*'
+SECRET_KEY = os.getenv('SECRET_KEY', default='b#r4krp-9tifn-s#w0^snzq3&*qk%ni7&yg!ti=r45rxaw)h^*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -135,11 +131,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-#     'AUTH_HEADER_TYPES': ('Bearer',)
-# }
-
 # Internationalization
 
 LANGUAGE_CODE = 'ru-ru'
@@ -152,15 +143,39 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# RECIPES = {
-#     'CODE_LENGTH': 20,
-#     'EMAIL_FROM': 'info@example.com',
-#     'RESERVED_USERNAMES': ('me',)
+RECIPES = {
+    'EMAIL_FROM': 'info@example.com',
+    'RESERVED_USERNAMES': ('me',)
+}
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': True,
+#     'formatters': {
+#         'simple': {
+#             'format': '[%(levelname)s:%(name)s:%(lineno)d] %(message)s'
+#         },
+#     },
+#     'handlers': {
+#         # ...
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'simple',
+#         },
+#     },
+#     'loggers': {
+#         # ...
+#         'django.db': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',  # <----<<<
+#             'propagate': False,
+#         }
+#     }
 # }
