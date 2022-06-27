@@ -1,6 +1,5 @@
 import os
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -153,29 +152,3 @@ RECIPES = {
     'EMAIL_FROM': 'info@example.com',
     'RESERVED_USERNAMES': ('me',)
 }
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': True,
-#     'formatters': {
-#         'simple': {
-#             'format': '[%(levelname)s:%(name)s:%(lineno)d] %(message)s'
-#         },
-#     },
-#     'handlers': {
-#         # ...
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'simple',
-#         },
-#     },
-#     'loggers': {
-#         # ...
-#         'django.db': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',  # <----<<<
-#             'propagate': False,
-#         }
-#     }
-# }

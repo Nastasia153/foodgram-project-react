@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -7,14 +7,15 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag, RecipeIngredients
+from recipes.models import (Favorite, Ingredient, Recipe, ShoppingCart,
+                            Tag, RecipeIngredients)
 
 from .filters import RecipeFilter, IngredientFilter
 from .permissions import (IsAdminOrAuthorOrReadOnly, IsAdminUserOrReadOnly,
                           IsOwnerAdmin)
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeReadSerializer, RecipeWriteSerializer,
-                          TagSerializer, ShoppingCartSerializer, MiniViewRecipeSerializer)
+                          TagSerializer, ShoppingCartSerializer)
 from .pagination import CustomPagination
 
 
@@ -82,7 +83,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         raise MethodNotAllowed(request.method)
 
-    @action(methods=['POST', 'DELETE'], detail=True,
+    @action(methods=['post', 'delete'], detail=True,
             permission_classes=(IsOwnerAdmin,))
     def shopping_cart(self, request, pk):
         """Корзина."""
@@ -95,7 +96,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             add_recipe = ShoppingCart.objects.create(user=request.user,
                                                      recipe=recipe)
             serializer = ShoppingCartSerializer(add_recipe,
-                                            context={'request': request})
+                                                context={'request': request})
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
             instance = get_object_or_404(
@@ -104,20 +105,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         raise MethodNotAllowed(request.method)
 
-    # "detail": "Невозможно удовлетворить \"Accept\" заголовок запроса." 406
     @action(detail=False, methods=['get'],
             permission_classes=(IsOwnerAdmin,))
     def download_shopping_cart(self, request):
         """"Вывод списка покупок в текстовый файл."""
-        cart = RecipeIngredients.objects.filter(recipe__shopping_cart__user=request.user).values(
-            'ingredient__name', 'ingredient__measurement_unit').order_by('ingredient__name').annotate(total=Sum('amount'))
-        # shopping_list = ShoppingCart.objects.filter(recipe__shopping_cart__user=request.user).values(
-        #     'recipe__ingredients__name', 'recipe__ingredients__measurement_unit').order_by(
-        #     'recipe__ingredients__name').annotate(ingredients_total=Sum('recipe__ingredient_recipe__amount'))
-        print(cart)
-        # ingredients_list = RecipeIngredients.objects.filter(recipe_id__in=shopping_list).order_by('ingredient')
-        # print(ingredients_list)
-        text = cart
+        shopping_list = RecipeIngredients.objects.filter(
+            recipe__shopping_cart__user=request.user).values(
+            name=F('ingredient__name'),
+            units=F('ingredient__measurement_unit')).order_by(
+            'ingredient__name').annotate(total=Sum('amount'))
+        text = 'Что купить: \n\n'
+        ingr_list = []
+        for recipe in shopping_list:
+            ingr_list.append(recipe)
+        for i in ingr_list:
+            text += f'{i["name"]}: {i["total"]}, {i["units"]}.\n'
         response = HttpResponse(text, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename="shopping_list.txt"'
         return response

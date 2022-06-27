@@ -49,7 +49,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = IngredientRecipeSerializer(many=True,
                                              read_only=True,
                                              source='ingredient_recipe')
-    author =UserSerializer(read_only=True,
+    author = UserSerializer(read_only=True,
                            default=serializers.CurrentUserDefault())
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -95,7 +95,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 fields=['author', 'name'],
                 message='Вы уже разместили рецепт с таким названием')
         ]
-
 
     def validate(self, data):
         print(f'данные валидации: {data}')
