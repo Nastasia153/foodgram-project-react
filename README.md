@@ -1,4 +1,7 @@
-# praktikum_new_diplom
+# Продуктовый помощник.
+![Action status](https://github.com/Nastasia153/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+
+
 ## Установка
 
 Клонируйте репозиторий.
