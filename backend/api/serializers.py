@@ -5,7 +5,6 @@ from rest_framework.validators import UniqueTogetherValidator
 from recipes.models import (
     Favorite, Ingredient, Recipe, RecipeIngredients, ShoppingCart, Tag
 )
-
 from users.serializers import UserSerializer
 
 
@@ -52,7 +51,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
                                              read_only=True,
                                              source='ingredient_recipe')
     author = UserSerializer(read_only=True,
-                           default=serializers.CurrentUserDefault())
+                            default=serializers.CurrentUserDefault())
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 

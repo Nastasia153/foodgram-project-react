@@ -124,5 +124,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         for i in ingr_list:
             text += f'{i["name"]}: {i["total"]}, {i["units"]}.\n'
         response = HttpResponse(text, content_type='text/plain')
-        response['Content-Disposition'] = f'attachment; filename="shopping_list.txt"'
+        response['Content-Disposition'] = ('attachment;'
+                                           'filename="shopping_list.txt"')
         return response

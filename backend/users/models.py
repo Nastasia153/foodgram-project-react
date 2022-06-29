@@ -42,8 +42,7 @@ class FoodgramUser(AbstractUser):
 
     @property
     def is_admin(self):
-        return (
-                self.is_staff
+        return (self.is_staff
                 or self.role == FoodgramUser.ADMIN
         )
 
