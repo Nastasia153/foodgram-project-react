@@ -17,6 +17,7 @@ services:
 
   web:
     image: donas/foodgram:v1.06.22
+    command: python manage.py migrate
     volumes:
       - static_value:/app/static/
       - media_value:/api/media/
