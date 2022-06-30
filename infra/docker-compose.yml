@@ -18,7 +18,7 @@ services:
 
   web:
     container_name: web
-    image: donas/newfoodgram:v2.06.22
+    image: donas/newfoodgram:v3.06.22
     volumes:
       - static_value:/app/static/
       - media_value:/api/media/

@@ -142,17 +142,17 @@ class RecipeBase(models.Model):
 
     class Meta:
         abstract = True
-        constraints = [
-            UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_user_recipe'
-            )
-        ]
 
 
 class Favorite(RecipeBase):
     class Meta(RecipeBase.Meta):
         default_related_name = 'favorite'
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
         verbose_name = 'любимый рецепт'
         verbose_name_plural = 'любимые рецепты'
 
@@ -160,5 +160,11 @@ class Favorite(RecipeBase):
 class ShoppingCart(RecipeBase):
     class Meta(RecipeBase.Meta):
         default_related_name = 'shopping_cart'
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_recipe_in_cart'
+            )
+        ]
         verbose_name = 'список покупок'
         verbose_name_plural = 'список покупок'
