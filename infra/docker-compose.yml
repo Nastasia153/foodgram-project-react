@@ -9,15 +9,16 @@ services:
       - ../frontend/:/app/result_build/
 
   db:
+    container_name: db
     image: postgres:13.0-alpine
     volumes:
-      - /var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ../backend/.env
 
   web:
-    image: donas/foodgram:v1.06.22
-    command: python manage.py migrate
+    container_name: web
+    image: donas/newfoodgram:v2.06.22
     volumes:
       - static_value:/app/static/
       - media_value:/api/media/
