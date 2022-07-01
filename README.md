@@ -49,7 +49,7 @@ sudo docker-compose exec web python manage.py collectstatic --no-input
 [http://coocwithme.ddns.net/](http://cookwithme.ddns.net/)
 
 документация API доступна по адресу 
-[http://coocwithme.ddns.net/api/docs/redoc](http://cookwithme.ddns.net/api/docs/redoc)
+[http://coocwithme.ddns.net/api/docs/redoc](http://cookwithme.ddns.net/api/docs)
 
 ## Данные для администратора
 email - admin@ya.ru
