@@ -1,4 +1,7 @@
 # Продуктовый помощник.
+
+Рецепты и списки покупок.
+
 ![Action status](https://github.com/Nastasia153/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 
@@ -6,53 +9,63 @@
 
 Клонируйте репозиторий.
 
-Создайте и активируйте виртуальное окружение:
+## Использование
 
-В Linux
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+Наполнение .env файла.
 
-В Windows
-```bash
-python -m venv venv
-source venv/Scripts/activate
-```
+В директории backend, есть шаблон .env.example по заполнению файла
 
-Используйте [pip](https://pip.pypa.io/en/stable/)
-для установки зависимостей.
+## Запуск docker-compose
 
 ```bash
-pip install -r requirements.txt
+sudo docker-compose up -d
 ```
-
-Создайте базу данных
+- выполняем миграции:
 
 ```bash
-python backend/manage.py migrate
+sudo docker-compose exec web python manage.py makemigrations
+sudo docker-compose exec web python manage.py migrate
 ```
-
-Создайте суперпользователя
+- заполняем базу ингредиентами и тегами:
 
 ```bash
-python backend/manage.py createsuperuser
+sudo docker-compose exec web python manage.py sampledata
 ```
 
-
-## Тестовый набор данных
-
-Тестовый набор данных можно загрузить, используя команду
+- cоздаём суперпользователя:
 
 ```bash
-python backend/manage.py sampledata
+sudo docker-compose exec web python manage.py createsuperuser
 ```
+- собираем статику:
+```bash
+sudo docker-compose exec web python manage.py collectstatic --no-input
+```
+
 
 ## Использование
 
-Проверка установки
+Теперь проект доступен по адресу:
+[http://coocwithme.ddns.net/](http://coocwithme.ddns.net/)
 
-```bash
-python backend/manage.py runserver
-```
-после запуска локального сервера, данные доступны по адресу [http://127.0.0.1:8000/api](http://127.0.0.1:8000/api)
+документация API доступна по адресу 
+[http://coocwithme.ddns.net/api/docs/redoc](http://coocwithme.ddns.net/api/docs/redoc)
+
+## Данные для администратора
+email - admin@ya.ru
+
+password - fl789vby
+
+## Teхнологии
+Приложение работает на 
+- [Django 2.2](https://www.djangoproject.com/download/)
+- [Django REST Framework 3.12](https://www.django-rest-framework.org/#installation).
+- [Djoser](https://djoser.readthedocs.io/en/latest/getting_started.html)
+- [Docker](https://docs.docker.com/)
+- [GitHub Actions](https://github.com/features/actions)
+
+
+## Разработчики
+
+- [Анастасия Дементьева](https://github.com/Nastasia153)
+
