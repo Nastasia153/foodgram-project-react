@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
-from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -74,17 +72,6 @@ class Recipe(models.Model):
 
     def get_tag(self):
         return "\n".join([t.name for t in self.tags.all()])
-
-    # def clean(self):
-    #     print(self.ingredients)
-    #     print(self.tags)
-    #     if self.ingredients is None:
-    #         raise ValidationError({'ingredients': _('Обязательное поле')}, code='required')
-    #     if self.tags is None:
-    #         raise ValidationError({'tags': _('Обязательное поле')}, code='required')
-    #
-    # def __str__(self):
-    #     return self.name
 
 
 class RecipeTags(models.Model):

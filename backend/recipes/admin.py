@@ -4,7 +4,9 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from users.models import Follow, FoodgramUser
-from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag, RecipeIngredients
+from .models import (
+    Favorite, Ingredient, Recipe, RecipeIngredients, ShoppingCart, Tag
+)
 
 
 @admin.register(FoodgramUser)
