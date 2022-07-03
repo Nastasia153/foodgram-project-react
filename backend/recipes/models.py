@@ -1,7 +1,9 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -44,7 +46,7 @@ class Recipe(models.Model):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='RecipeIngredients'
+        through='RecipeIngredients',
     )
     image = models.ImageField(
         upload_to='recipes/',
@@ -58,7 +60,7 @@ class Recipe(models.Model):
     text = models.TextField('описание рецепта')
     tags = models.ManyToManyField(
         Tag,
-        through='RecipeTags'
+        through='RecipeTags',
     )
 
     class Meta:
@@ -73,8 +75,16 @@ class Recipe(models.Model):
     def get_tag(self):
         return "\n".join([t.name for t in self.tags.all()])
 
-    def __str__(self):
-        return self.name
+    # def clean(self):
+    #     print(self.ingredients)
+    #     print(self.tags)
+    #     if self.ingredients is None:
+    #         raise ValidationError({'ingredients': _('Обязательное поле')}, code='required')
+    #     if self.tags is None:
+    #         raise ValidationError({'tags': _('Обязательное поле')}, code='required')
+    #
+    # def __str__(self):
+    #     return self.name
 
 
 class RecipeTags(models.Model):
@@ -125,6 +135,8 @@ class RecipeIngredients(models.Model):
                 name='unique_recipe_ingredient'
             )
         ]
+        verbose_name = 'ингредиент рецепта'
+        verbose_name_plural = 'ингредиенты рецепта'
 
     def __str__(self):
         return f'{self.recipe} {self.ingredient} {self.amount}'

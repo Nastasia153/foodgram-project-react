@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from users.models import Follow, FoodgramUser
-from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag, RecipeIngredients
 
 
 @admin.register(FoodgramUser)
@@ -33,16 +33,18 @@ class ChoiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ['ingredient']
 
 
-class IngredientInLine(admin.TabularInline):
-    model = Recipe.ingredients.through
-    verbose_name = 'связь ингредиент-рецепт'
-    verbose_name_plural = 'связи ингредиент-рецепт'
-
-
 class TagInLine(admin.TabularInline):
     model = Recipe.tags.through
+    min_num = 1
+    extra = 0
     verbose_name = 'связь ярлык-рецепт'
     verbose_name_plural = 'связи ярлык-рецепт'
+
+
+class RecipeIngredientInLine(admin.TabularInline):
+    model = RecipeIngredients
+    min_num = 1
+    extra = 0
 
 
 class IngredientAdminForm(forms.ModelForm):
@@ -75,7 +77,18 @@ class RecipeAdmin(admin.ModelAdmin):
         'id', 'name', 'author', 'get_tag'
     )
     search_fields = ('name',)
-    inlines = [IngredientInLine, TagInLine]
+    inlines = [RecipeIngredientInLine, TagInLine]
+
+
+@admin.register(RecipeIngredients)
+class RecipeIngredientsAdmin(admin.ModelAdmin):
+    list_display = ('ingredient',
+                    'ingredient_id',
+                    'recipe',
+                    'recipe_id',
+                    'amount')
+    search_fields = ('ingredient',)
+    empty_value_display = '-пусто-'
 
 
 @admin.register(Follow)
