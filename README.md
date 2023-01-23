@@ -42,20 +42,6 @@ sudo docker-compose exec web python manage.py createsuperuser
 sudo docker-compose exec web python manage.py collectstatic --no-input
 ```
 
-
-## Использование
-
-Теперь проект доступен по адресу:
-[http://cookwithme.ddns.net/](http://cookwithme.ddns.net/)
-
-документация API доступна по адресу 
-[http://cookwithme.ddns.net/api/docs](http://cookwithme.ddns.net/api/docs)
-
-## Данные для администратора
-email - admin@ya.ru
-
-password - fl789vby
-
 ## Teхнологии
 Приложение работает на 
 - [Django 2.2](https://www.djangoproject.com/download/)
